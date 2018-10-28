@@ -45,3 +45,11 @@ body {
   opacity: 1;
   font-size: 28px;
 }
+
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid black;
+}

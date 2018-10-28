@@ -13,34 +13,34 @@
       <th>Doing</th>
     </tr>
     <tr>
-      <td>
+      <td @dragover.prevent @drop="dragFinishColumn($event, 1, 1)">
         <div id='column1'>
           <ul class="todo-list">
-            <li @dragover.prevent @drop="dragFinish(-1, $event)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
+            <li @dragover.prevent @drop="dragFinish($event, -1, 1)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
 
             <li v-else>
               <input placeholder="Type new task and press enter" type="text" class="new-todo todo-item" v-model="newItem" @keyup.enter="addItem">
             </li>
 
-            <li class="todo-item" v-for="(item, i) in todos" v-key="i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish(i, $event)">
+            <li class="todo-item" v-for="(item, i) in todos" :id="'c1_' + i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish($event, i, 1)">
               <span>{{ item.title }}</span>
-              <span class="remove-item" @click="removeItem(item)">x</span>
+              <span class="remove-item" @click="removeItem(item, 1)">x</span>
             </li>
           </ul>
         </div>
       </td>
-      <td>
+      <td @dragover.prevent @drop="dragFinishColumn($event, 1, 2)">
         <div id='column2'>
           <ul class="todo-list">
-            <li @dragover.prevent @drop="dragFinish(-1, $event)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
+            <li @dragover.prevent @drop="dragFinish($event, -1, 2)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
 
             <li v-else>
               <input placeholder="Type new task and press enter" type="text" class="new-todo todo-item" v-model="newItem2" @keyup.enter="addItem2">
             </li>
 
-            <li class="todo-item" v-for="(item, i) in todos2" v-key="i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish(i, $event)">
+            <li class="todo-item" v-for="(item, i) in todos2" :id="'c2_' + i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish($event, i, 2)">
               <span>{{ item.title }}</span>
-              <span class="remove-item" @click="removeItem(item)">x</span>
+              <span class="remove-item" @click="removeItem(item, 2)">x</span>
             </li>
           </ul>
         </div>

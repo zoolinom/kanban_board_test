@@ -19,7 +19,8 @@ const app = new Vue({
       todos2: todoStorage2.fetch(),
       newItem: "",
       newItem2: "",
-      dragging: -1
+      dragging: -1,
+      startPos: ""
     };
   },
   methods: {
@@ -43,16 +44,41 @@ const app = new Vue({
       });
       this.newItem2 = "";
     },
-    removeItem(item) {
-      this.todos.splice(this.todos.indexOf(item), 1);
+    removeItem(item, where) {
+      if (where === 1) {
+        this.todos.splice(this.todos.indexOf(item), 1);
+      } else {
+        this.todos2.splice(this.todos.indexOf(item), 1);
+      }
     },
-    removeItemAt(index) {
-      this.todos.splice(index, 1);
+    removeItemAt(index, where) {
+      if (where === 1) {
+        console.log(where);
+        this.todos.splice(index, 1);
+      } else {
+        this.todos2.splice(index, 1);
+      }
     },
     dragStart(which, ev) {
-      ev.dataTransfer.setData('Text', this.id);
-      ev.dataTransfer.dropEffect = 'move'
+      console.log('drag started');
+      //ev.preventDefault();
+      //ev.dataTransfer.setData('Text', this.id);
+      //console.log(this.id);
+      //console.log(ev.target.id);
+      ev.dataTransfer.setData('Text', ev.target.id);
+      console.log(ev.target.id);
+      //ev.dataTransfer.dropEffect = 'move'
       this.dragging = which;
+      this.startPos = ev.target.tagName;
+    },
+    dragStart2(ev) {
+      console.log('drag started');
+      //ev.preventDefault();
+      //ev.dataTransfer.setData('Text', this.id);
+      console.log(this.id);
+      console.log(ev.target.id);
+      ev.dataTransfer.setData('Text', ev.target.id);
+      ev.dataTransfer.dropEffect = 'move'
     },
     dragEnter(ev) {
       /* 
@@ -72,17 +98,61 @@ const app = new Vue({
     dragEnd(ev) {
       this.dragging = -1
     },
-    dragFinish(to, ev) {
-      this.moveItem(this.dragging, to);
+    // dragFinish(ev, to) {
+    //   console.log('drag finish');
+    //   ev.preventDefault();
+    //   this.moveItem(this.dragging, to);
+    //   console.log(ev.target);
+    //   console.log(ev.dataTransfer.getData('Text'));
+    //   let data = ev.dataTransfer.getData('Text');
+    //   console.log(data);
+    //   ev.target.style.marginTop = '2px'
+    //   ev.target.style.marginBottom = '2px'
+    // },
+    dragFinish(ev, to, where) {
+      console.log('drag finish');
+      console.log(to);
+      console.log(where);
+      ev.preventDefault();
+      this.moveItem(this.dragging, to, where);
+
       console.log(ev.target);
+      console.log(ev.dataTransfer.getData('Text'));
+      let data = ev.dataTransfer.getData('Text');
+      console.log(data);
       ev.target.style.marginTop = '2px'
       ev.target.style.marginBottom = '2px'
+      ev.stopPropagation();
     },
-    moveItem(from, to) {
+    dragFinishColumn(ev, to, where = 3) {
+      console.log('drag finish column');
+      console.log(to);
+      console.log(where);
+      ev.preventDefault();
+      if (where === 1) {
+        let removed = this.todos2.splice(this.dragging, 1);
+        this.todos.push(removed[0]);
+      } else if (where === 2) {
+        let removed = this.todos.splice(this.dragging, 1);
+        this.todos2.push(removed[0]);
+      }
+      console.log(ev.target);
+      console.log(ev.dataTransfer.getData('Text'));
+      let data = ev.dataTransfer.getData('Text');
+      console.log(data);
+      ev.target.style.marginTop = '2px'
+      ev.target.style.marginBottom = '2px'
+      ev.stopPropagation();
+    },
+    moveItem(from, to, where) {
       if (to === -1) {
-        this.removeItemAt(from);
+        this.removeItemAt(from, where);
       } else {
-        this.todos.splice(to, 0, this.todos.splice(from, 1)[0]);
+        if (where == 1) {
+          this.todos.splice(to, 0, this.todos.splice(from, 1)[0]);
+        } else {
+          this.todos2.splice(to, 0, this.todos2.splice(from, 1)[0]);
+        }
       }
     }
   },
@@ -96,6 +166,12 @@ const app = new Vue({
     todos: {
       handler: function(todos) {
         todoStorage.save(todos);
+      },
+      deep: true
+    },
+    todos2: {
+      handler: function(todos2) {
+        todoStorage2.save(todos2);
       },
       deep: true
     }
