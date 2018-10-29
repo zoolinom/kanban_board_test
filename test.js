@@ -141,8 +141,18 @@ const app = new Vue({
       console.log(res2);
       if (res1 != res2) {
         this.dragFinishColumn(ev, to, where);
+        if (where === 1) {
+          this.moveItem(this.todos.length - 1, to, where);
+        }
+        if (where === 2) {
+          this.moveItem(this.todos2.length - 1, to, where);
+        }
+        if (where === 3) {
+          this.moveItem(this.todos3.length - 1, to, where);
+        }
+      } else {
+        this.moveItem(this.dragging, to, where);
       }
-      this.moveItem(this.dragging, to, where);
 
       console.log(ev.currentTarget.id);
       console.log(ev.target.id);
@@ -162,33 +172,32 @@ const app = new Vue({
       ev.preventDefault();
       if (this.startId != ev.currentTarget.id) {
         console.log('different column');
+        let removed;
         if (where === 1) {
-          if (this.startId == 'column2') {
-            let removed = this.todos2.splice(this.dragging, 1);
-            this.todos.push(removed[0]);
+          if (this.startId === 'column2') {
+            removed = this.todos2.splice(this.dragging, 1);
+            console.log(removed[0]);
           }
-          if (this.startId == 'column3') {
-            let removed = this.todos3.splice(this.dragging, 1);
-            this.todos.push(removed[0]);
+          if (this.startId === 'column3') {
+            removed = this.todos3.splice(this.dragging, 1);
           }
+          this.todos.push(removed[0]);
         } else if (where === 2) {
-          if (this.startId == 'column1') {
-            let removed = this.todos.splice(this.dragging, 1);
-            this.todos2.push(removed[0]);
+          if (this.startId === 'column1') {
+            removed = this.todos.splice(this.dragging, 1);
           }
-          if (this.startId == 'column3') {
-            let removed = this.todos3.splice(this.dragging, 1);
-            this.todos2.push(removed[0]);
+          if (this.startId === 'column3') {
+            removed = this.todos3.splice(this.dragging, 1);
           }
+          this.todos2.push(removed[0]);
         } else if (where === 3) {
-          if (this.startId == 'column1') {
-            let removed = this.todos.splice(this.dragging, 1);
-            this.todos3.push(removed[0]);
+          if (this.startId === 'column1') {
+            removed = this.todos.splice(this.dragging, 1);
           }
-          if (this.startId == 'column2') {
-            let removed = this.todos2.splice(this.dragging, 1);
-            this.todos3.push(removed[0]);
+          if (this.startId === 'column2') {
+            removed = this.todos2.splice(this.dragging, 1);
           }
+          this.todos3.push(removed[0]);
         }
       }
       console.log(ev.target.id);
@@ -231,6 +240,7 @@ const app = new Vue({
     //   ev.stopPropagation();
     // },
     moveItem(from, to, where) {
+      console.log('move item');
       if (to === -1) {
         this.removeItemAt(from, where);
       } else {
