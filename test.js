@@ -1,5 +1,6 @@
 const TODO_STORAGE_KEY = "todostorage";
 const TODO_STORAGE_KEY2 = "todostorage2";
+const TODO_STORAGE_KEY3 = "todostorage3";
 
 let todoStorage = {
   fetch: () => JSON.parse(localStorage.getItem(TODO_STORAGE_KEY) || "[]"),
@@ -11,14 +12,21 @@ let todoStorage2 = {
   save: todos2 => localStorage.setItem(TODO_STORAGE_KEY2, JSON.stringify(todos2))
 };
 
+let todoStorage3 = {
+  fetch: () => JSON.parse(localStorage.getItem(TODO_STORAGE_KEY3) || "[]"),
+  save: todos3 => localStorage.setItem(TODO_STORAGE_KEY3, JSON.stringify(todos3))
+};
+
 const app = new Vue({
   el: "#app",
   data: () => {
     return {
       todos: todoStorage.fetch(),
       todos2: todoStorage2.fetch(),
+      todos3: todoStorage3.fetch(),
       newItem: "",
       newItem2: "",
+      newItem3: "",
       dragging: -1,
       startId: ""
     };
@@ -42,19 +50,32 @@ const app = new Vue({
       });
       this.newItem2 = "";
     },
+    addItem3() {
+      if (!this.newItem3) {
+        return;
+      }
+      this.todos3.push({
+        title: this.newItem3
+      });
+      this.newItem3 = "";
+    },
     removeItem(item, where) {
       if (where === 1) {
         this.todos.splice(this.todos.indexOf(item), 1);
-      } else {
-        this.todos2.splice(this.todos.indexOf(item), 1);
+      } else if (where === 2) {
+        this.todos2.splice(this.todos2.indexOf(item), 1);
+      } else if (where === 3) {
+        this.todos3.splice(this.todos3.indexOf(item), 1);
       }
     },
     removeItemAt(index, where) {
       if (where === 1) {
         console.log(where);
         this.todos.splice(index, 1);
-      } else {
+      } else if (where === 2) {
         this.todos2.splice(index, 1);
+      } else if (where === 3) {
+        this.todos3.splice(index, 1);
       }
     },
     dragStart(which, ev) {
@@ -133,19 +154,41 @@ const app = new Vue({
       ev.target.style.marginBottom = '2px'
       ev.stopPropagation();
     },
-    dragFinishColumn(ev, to, where = 3) {
+    dragFinishColumn(ev, to, where) {
       console.log('drag finish column');
       console.log(to);
       console.log(where);
+      console.log(ev.currentTarget.id);
       ev.preventDefault();
       if (this.startId != ev.currentTarget.id) {
         console.log('different column');
         if (where === 1) {
-          let removed = this.todos2.splice(this.dragging, 1);
-          this.todos.push(removed[0]);
+          if (this.startId == 'column2') {
+            let removed = this.todos2.splice(this.dragging, 1);
+            this.todos.push(removed[0]);
+          }
+          if (this.startId == 'column3') {
+            let removed = this.todos3.splice(this.dragging, 1);
+            this.todos.push(removed[0]);
+          }
         } else if (where === 2) {
-          let removed = this.todos.splice(this.dragging, 1);
-          this.todos2.push(removed[0]);
+          if (this.startId == 'column1') {
+            let removed = this.todos.splice(this.dragging, 1);
+            this.todos2.push(removed[0]);
+          }
+          if (this.startId == 'column3') {
+            let removed = this.todos3.splice(this.dragging, 1);
+            this.todos2.push(removed[0]);
+          }
+        } else if (where === 3) {
+          if (this.startId == 'column1') {
+            let removed = this.todos.splice(this.dragging, 1);
+            this.todos3.push(removed[0]);
+          }
+          if (this.startId == 'column2') {
+            let removed = this.todos2.splice(this.dragging, 1);
+            this.todos3.push(removed[0]);
+          }
         }
       }
       console.log(ev.target.id);
@@ -193,8 +236,10 @@ const app = new Vue({
       } else {
         if (where === 1) {
           this.todos.splice(to, 0, this.todos.splice(from, 1)[0]);
-        } else {
+        } else if (where === 2) {
           this.todos2.splice(to, 0, this.todos2.splice(from, 1)[0]);
+        } else if (where === 3) {
+          this.todos3.splice(to, 0, this.todos3.splice(from, 1)[0]);
         }
       }
     }
@@ -215,6 +260,12 @@ const app = new Vue({
     todos2: {
       handler: function(todos2) {
         todoStorage2.save(todos2);
+      },
+      deep: true
+    },
+    todos3: {
+      handler: function(todos3) {
+        todoStorage3.save(todos3);
       },
       deep: true
     }
