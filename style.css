@@ -48,6 +48,7 @@ body {
 
 table {
   border-collapse: collapse;
+  width: 80%;
 }
 
 table, th, td {

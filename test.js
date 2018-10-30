@@ -170,15 +170,19 @@ const app = new Vue({
         if (ret) {
           return;
         }
-        this.dragFinishColumn(ev, to, where);
-        if (where === 1) {
-          this.moveItem(this.todos.length - 1, to, where);
-        }
-        if (where === 2) {
-          this.moveItem(this.todos2.length - 1, to, where);
-        }
-        if (where === 3) {
-          this.moveItem(this.todos3.length - 1, to, where);
+        if (to != -1) {
+          this.dragFinishColumn(ev, to, where);
+          if (where === 1) {
+            this.moveItem(this.todos.length - 1, to, where);
+          }
+          if (where === 2) {
+            this.moveItem(this.todos2.length - 1, to, where);
+          }
+          if (where === 3) {
+            this.moveItem(this.todos3.length - 1, to, where);
+          }
+        } else {
+          this.moveItem(this.dragging, to, where);
         }
       } else {
         this.moveItem(this.dragging, to, where);
