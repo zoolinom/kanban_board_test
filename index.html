@@ -9,9 +9,12 @@
 <div id='app'>
   <table>
     <tr>
-      <th>TO Do</th>
-      <th>Doing</th>
-      <th>Done</th>
+      <th v-if="column1Count == ''" @click="clicked = true">To Do <input v-if="clicked === true" type="text" v-model="col" @mouseout="clicked = false" @keyup.enter="addCount(1)"></th>
+      <th v-else @click="clicked = true">To Do ( {{ column1Count }} ) <input v-if="clicked === true" type="text" v-model="col" @mouseout="clicked = false" @keyup.enter="addCount(1)"></th>
+      <th v-if="column2Count == ''" @click="clicked2 = true">In Progress <input v-if="clicked2 === true" type="text" v-model="col" @mouseout="clicked2 = false" @keyup.enter="addCount(2)"></th>
+      <th v-else @click="clicked2 = true">In Progress ( {{ column2Count }} ) <input v-if="clicked2 === true" type="text" v-model="col" @mouseout="clicked2 = false" @keyup.enter="addCount(2)"></th>
+      <th v-if="column3Count == ''" @click="clicked3 = true">Done <input v-if="clicked3 === true" type="text" v-model="col" @mouseout="clicked3 = false" @keyup.enter="addCount(3)"></th>
+      <th v-else @click="clicked = true">Done ( {{ column3Count }} ) <input v-if="clicked === true" type="text" v-model="col" @mouseout="clicked3 = false" @keyup.enter="addCount(3)"></th>
     </tr>
     <tr>
       <td id="column1" @dragstart="dragStart2($event)" @dragover.prevent @drop="dragFinishColumn($event, 1, 1)">

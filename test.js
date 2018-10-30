@@ -3,8 +3,12 @@ const TODO_STORAGE_KEY2 = "todostorage2";
 const TODO_STORAGE_KEY3 = "todostorage3";
 
 let todoStorage = {
-  fetch: () => JSON.parse(localStorage.getItem(TODO_STORAGE_KEY) || "[]"),
-  save: todos => localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos))
+  fetch: () => JSON.parse(localStorage.getItem(TODO_STORAGE_KEY) || "[]"),//{
+    //ret = JSON.parse(localStorage.getItem(TODO_STORAGE_KEY) || "[]");
+    //console.log(ret);
+    //return ret;
+  //},
+  save: (todos) => localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos))
 };
 
 let todoStorage2 = {
@@ -28,12 +32,24 @@ const app = new Vue({
       newItem2: "",
       newItem3: "",
       dragging: -1,
-      startId: ""
+      startId: "",
+      column1Count: "",
+      column2Count: "",
+      column3Count: "",
+      col: "",
+      clicked: false,
+      clicked2: false,
+      clicked3: false
     };
   },
   methods: {
     addItem() {
       if (!this.newItem) {
+        return;
+      }
+      let ret = this.checkCount(1);
+      if (ret) {
+        this.newItem = "";
         return;
       }
       this.todos.push({
@@ -45,6 +61,11 @@ const app = new Vue({
       if (!this.newItem2) {
         return;
       }
+      let ret = this.checkCount(1);
+      if (ret) {
+        this.newItem2 = "";
+        return;
+      }
       this.todos2.push({
         title: this.newItem2
       });
@@ -52,6 +73,11 @@ const app = new Vue({
     },
     addItem3() {
       if (!this.newItem3) {
+        return;
+      }
+      let ret = this.checkCount(1);
+      if (ret) {
+        this.newItem3 = "";
         return;
       }
       this.todos3.push({
@@ -140,6 +166,10 @@ const app = new Vue({
       console.log(res1);
       console.log(res2);
       if (res1 != res2) {
+        ret = this.checkCount(where);
+        if (ret) {
+          return;
+        }
         this.dragFinishColumn(ev, to, where);
         if (where === 1) {
           this.moveItem(this.todos.length - 1, to, where);
@@ -170,6 +200,11 @@ const app = new Vue({
       console.log(where);
       console.log(ev.currentTarget.id);
       ev.preventDefault();
+      ret = this.checkCount(where);
+      console.log(ret);
+      if (ret) {
+        return;
+      }
       if (this.startId != ev.currentTarget.id) {
         console.log('different column');
         let removed;
@@ -252,6 +287,56 @@ const app = new Vue({
           this.todos3.splice(to, 0, this.todos3.splice(from, 1)[0]);
         }
       }
+    },
+    checkCount(where) {
+      if (this.column1Count != "") {
+        if (where === 1) {
+          if (this.column1Count <= this.todos.length) {
+            return true;
+          }
+        }
+      }
+      if (this.column2Count != "") {
+        if (where === 2) {
+          if (this.column2Count <= this.todos2.length) {
+            return true;
+          }
+        }
+      }
+      if (this.column3Count != "") {
+        if (where === 3) {
+          if (this.column3Count <= this.todos3.length) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    },
+    addCount(id) {
+      if (!this.col) {
+        return;
+      }
+      console.log(id);
+      if (id === 1) {
+        if (this.col >= this.todos.length) {
+          this.column1Count = this.col;
+          this.clicked = false;
+        }
+      }
+      if (id === 2) {
+        if (this.col >= this.todos2.length) {
+          this.column2Count = this.col;
+          this.clicked2 = false;
+        }
+      }
+      if (id === 3) {
+        if (this.col >= this.todos3.length) {
+          this.column3Count = this.col;
+          this.clicked3 = false;
+        }
+      }
+      this.col = "";
     }
   },
   computed: {
