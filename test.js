@@ -1,3 +1,4 @@
+/*
 const TODO_STORAGE_KEY = "todostorage";
 const TODO_STORAGE_KEY2 = "todostorage2";
 const TODO_STORAGE_KEY3 = "todostorage3";
@@ -126,19 +127,15 @@ const app = new Vue({
       ev.dataTransfer.dropEffect = 'move'
     },
     dragEnter(ev) {
-      /* 
-      if (ev.clientY > ev.target.height / 2) {
-        ev.target.style.marginBottom = '10px'
-      } else {
-        ev.target.style.marginTop = '10px'
-      }
-      */
+      //if (ev.clientY > ev.target.height / 2) {
+      //  ev.target.style.marginBottom = '10px'
+      //} else {
+      //  ev.target.style.marginTop = '10px'
+      //}
     },
-    dragLeave(ev) {
-      /* 
-      ev.target.style.marginTop = '2px'
-      ev.target.style.marginBottom = '2px'
-      */
+    dragLeave(ev) { 
+      //ev.target.style.marginTop = '2px'
+      //ev.target.style.marginBottom = '2px'
     },
     dragEnd(ev) {
       this.dragging = -1
@@ -369,4 +366,123 @@ const app = new Vue({
       deep: true
     }
   }
+});
+*/
+
+window.Event = new Vue();
+
+Vue.component('test', {
+  props: ['id'],
+  template: `<div><ul class="todo-list">
+    <li @dragover.prevent @drop="dragFinish(-1, $event)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
+    
+    <li v-else>
+      <input placeholder="Type new task and press enter" type="text" class="new-todo todo-item" v-model="newItem" @keyup.enter="addItem">
+    </li>
+    
+    <li class="todo-item" v-for="(item, i) in todos" v-key="i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish(i, $event)">
+      <input type="checkbox" v-model="item.done" />
+      <span :class="{done: item.done}">{{ item.title }}</span>
+      <span class="remove-item" @click="removeItem(item)">x</span>
+    </li>
+  </ul>
+</div>
+`,
+  data: function() {
+    return {
+      todoStorage: "",
+      todos: "",
+      newItem: "",
+      dragging: -1,
+      componentId: this.id
+    }
+  },
+  methods: {
+    addItem() {
+      if (!this.newItem) {
+        return;
+      }
+      this.todos.push({
+        title: this.newItem,
+        done: false
+      });
+      this.newItem = "";
+    },
+    removeItem(item) {
+      this.todos.splice(this.todos.indexOf(item), 1);
+    },
+    removeItemAt(index) {
+      this.todos.splice(index, 1);
+    },
+    dragStart(which, ev) {
+      ev.dataTransfer.setData('Text', this.id);
+      ev.dataTransfer.dropEffect = 'move'
+      this.dragging = which;
+    },
+    dragEnter(ev) {
+      /* 
+      if (ev.clientY > ev.target.height / 2) {
+        ev.target.style.marginBottom = '10px'
+      } else {
+        ev.target.style.marginTop = '10px'
+      }
+      */
+    },
+    dragLeave(ev) {
+      /* 
+      ev.target.style.marginTop = '2px'
+      ev.target.style.marginBottom = '2px'
+      */
+    },
+    dragEnd(ev) {
+      this.dragging = -1
+    },
+    dragFinish(to, ev) {
+      this.moveItem(this.dragging, to);
+      ev.target.style.marginTop = '2px'
+      ev.target.style.marginBottom = '2px'
+      Event.$emit("test-ev", {"todos": this.todos, "aaa":"test"});
+    },
+    moveItem(from, to) {
+      if (to === -1) {
+        this.removeItemAt(from);
+      } else {
+        this.todos.splice(to, 0, this.todos.splice(from, 1)[0]);
+      }
+    }
+  },
+  computed: {
+    isDragging() {
+      return this.dragging > -1
+    }
+  },
+  // watch todos change for localStorage persistence
+  watch: {
+    todos: {
+      handler: function(todos) {
+        this.todoStorage.save(todos);
+      },
+      deep: true
+    }
+  },
+  created() {
+    Event.$on('test-ev', event => {
+      console.log('test event');
+      console.log(event.todos);
+      console.log(event.aaa);
+    });
+  },
+  mounted() {
+    let TODO_STORAGE_KEY = "todo" + this.componentId;
+    console.log(TODO_STORAGE_KEY);
+    this.todoStorage = {
+      fetch: () => JSON.parse(localStorage.getItem(TODO_STORAGE_KEY) || "[]"),
+      save: todos => localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos))
+    };
+    this.todos = this.todoStorage.fetch();
+  }
+})
+
+const app = new Vue({
+  el: "#app"
 });
