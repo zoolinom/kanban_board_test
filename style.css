@@ -53,4 +53,7 @@ table {
 
 table, th, td {
   border: 1px solid black;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  font-size: 22px;
 }
