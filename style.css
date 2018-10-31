@@ -48,7 +48,7 @@ body {
 
 table {
   border-collapse: collapse;
-  width: 80%;
+  width: 100%;
 }
 
 table, th, td {
@@ -56,4 +56,14 @@ table, th, td {
   padding-top: 12px;
   padding-bottom: 12px;
   font-size: 22px;
+}
+
+.column-input {
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 14px 8px;
+  margin-bottom: 3px;
+  background-color: #fff;
+  font-size: 20px;
+  width: 80%;
 }

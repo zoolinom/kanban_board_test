@@ -82,7 +82,7 @@ Vue.component('test', {
           return;
         }
         if (to != -1) {
-          this.$parent.dragFinishColumn(ev, to);
+          this.$parent.dragFinishColumn(ev);
           this.moveItem(this.todos.length - 1, to);
         } else {
           this.moveItem(this.dragging, to);
@@ -179,7 +179,7 @@ const app = new Vue({
       ev.dataTransfer.setData('Text', ev.target.id);
       ev.dataTransfer.dropEffect = 'move'
     },
-    dragFinishColumn(ev, to) {
+    dragFinishColumn(ev) {
       console.log("drag finish column");
       ev.preventDefault();
       let where = ev.currentTarget.id.slice(6, 7);
