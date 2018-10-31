@@ -168,7 +168,8 @@ const app = new Vue({
       clicked: false,
       clicked2: false,
       clicked3: false,
-      col: ""
+      col: "",
+      columnStorage: ""
     }
   },
   methods: {
@@ -212,16 +213,28 @@ const app = new Vue({
           this.column1Count = this.col;
           this.clicked = false;
         }
+        if (this.col == 0) {
+          this.column1Count = "";
+          this.clicked = false;
+        }
       }
       if (id === 2) {
         if (this.col >= this.$children[id - 1].todos.length) {
           this.column2Count = this.col;
           this.clicked2 = false;
         }
+        if (this.col == 0) {
+          this.column2Count = "";
+          this.clicked2 = false;
+        }
       }
       if (id === 3) {
         if (this.col >= this.$children[id - 1].todos.length) {
           this.column3Count = this.col;
+          this.clicked3 = false;
+        }
+        if (this.col == 0) {
+          this.column3Count = "";
           this.clicked3 = false;
         }
       }
@@ -250,6 +263,59 @@ const app = new Vue({
         }
       }
       return false;
+    }
+  },
+  mounted() {
+    console.log('mounted called');
+    let COLUMN1_STORAGE_KEY = "column1";
+    let COLUMN2_STORAGE_KEY = "column2";
+    let COLUMN3_STORAGE_KEY = "column3";
+
+    this.columnStorage = {
+      fetch: columnId => {
+        let key = "";
+
+        if (columnId == 1) {
+          key = COLUMN1_STORAGE_KEY;
+        }
+        if (columnId == 2) {
+          key = COLUMN2_STORAGE_KEY;
+        }
+        if (columnId == 3) {
+          key = COLUMN3_STORAGE_KEY;
+        }
+        return localStorage.getItem(key) != null ? localStorage.getItem(key) : "";
+      },
+      save: (columnValue, columnId) => {
+        let key = "";
+
+        if (columnId === 1) {
+          key = COLUMN1_STORAGE_KEY;
+        }
+        if (columnId === 2) {
+          key = COLUMN2_STORAGE_KEY;
+        }
+        if (columnId === 3) {
+          key = COLUMN3_STORAGE_KEY;
+        }
+        console.log(key);
+        localStorage.setItem(key, columnValue);
+      }
+    };
+    this.column1Count = this.columnStorage.fetch(1);
+    this.column2Count = this.columnStorage.fetch(2);
+    this.column3Count = this.columnStorage.fetch(3);
+  },
+  // watch column max change for localStorage persistence
+  watch: {
+    column1Count: function() {
+        this.columnStorage.save(this.column1Count, 1);
+      },
+    column2Count: function() {
+      this.columnStorage.save(this.column2Count, 2);
+    },
+    column3Count: function() {
+      this.columnStorage.save(this.column3Count, 3);
     }
   }
 });
