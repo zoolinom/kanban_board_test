@@ -137,18 +137,21 @@ Vue.component('test', {
       }
       if (columnStartId === this.id) {
         console.log(columnStartId + " event triggered (start)");
-        this.$parent.removedItem = this.todos.splice(this.dragging, 1);
-        Event.$emit('column-add', columnEndId);
+        let removedItem = this.todos.splice(this.dragging, 1);
+
+        Event.$emit('column-add', {
+          "columnEndId": columnEndId,
+          "removedItem": removedItem
+        });
       }
     });
 
     Event.$on('column-add', event => {
       console.log("column-add triggered");
-      let columnEndId = event;
+      let {columnEndId, removedItem} = event;
 
       if (columnEndId === this.id) {
-        this.todos.push(this.$parent.removedItem[0]);
-        this.$parent.removedItem = "";
+        this.todos.push(removedItem[0]);
       }
     });
   }
@@ -159,7 +162,6 @@ const app = new Vue({
   data: function() {
     return {
       startId: "",
-      removedItem: "",
       column1Count: "",
       column2Count: "",
       column3Count: "",
@@ -177,6 +179,7 @@ const app = new Vue({
       ev.dataTransfer.dropEffect = 'move'
     },
     dragFinishColumn(ev, to) {
+      console.log("drag finish column");
       ev.preventDefault();
       let where = ev.currentTarget.id.slice(6, 7);
 
@@ -198,7 +201,7 @@ const app = new Vue({
       }
       ev.target.style.marginTop = '2px'
       ev.target.style.marginBottom = '2px'
-      ev.stopPropagation();
+      //ev.stopPropagation();
     },
     addCount(id) {
       if (!this.col) {
@@ -246,6 +249,7 @@ const app = new Vue({
           }
         }
       }
+      return false;
     }
   }
 });
