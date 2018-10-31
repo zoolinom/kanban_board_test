@@ -29,6 +29,15 @@ Vue.component('test', {
       if (!this.newItem) {
         return;
       }
+      let where = this.id.slice(6, 7);
+
+      let ret = this.$parent.checkCount(where);
+
+      if (ret) {
+        this.newItem = "";
+        
+        return;
+      }
       this.todos.push({
         title: this.newItem
       });
@@ -74,20 +83,23 @@ Vue.component('test', {
       let res2 = data.charAt(6);
 
       if (res1 != res2) {
-        let where = this.id.slice(6, 7);
-
-        let ret = this.$parent.checkCount(where);
-
-        if (ret) {
-          return;
-        }
-        if (to != -1) {
-          this.$parent.dragFinishColumn(ev);
-          this.moveItem(this.todos.length - 1, to);
-        } else {
+        if (to === -1) {
           this.moveItem(this.dragging, to);
+        } else {
+          let where = this.id.slice(6, 7);
+
+          let ret = this.$parent.checkCount(where);
+
+          if (ret) {
+            return;
+          }
+          if (to != -1) {
+            this.$parent.dragFinishColumn(ev);
+            this.moveItem(this.todos.length - 1, to);
+          }
         }
       } else {
+        console.log('bbb');
         this.moveItem(this.dragging, to);
       }
       ev.target.style.marginTop = '2px'
@@ -202,7 +214,6 @@ const app = new Vue({
       }
       ev.target.style.marginTop = '2px'
       ev.target.style.marginBottom = '2px'
-      //ev.stopPropagation();
     },
     addCount(id) {
       if (!this.col) {
@@ -284,7 +295,8 @@ const app = new Vue({
         if (columnId == 3) {
           key = COLUMN3_STORAGE_KEY;
         }
-        return localStorage.getItem(key) != null ? localStorage.getItem(key) : "";
+
+        return localStorage.getItem(key) === null ? "" : localStorage.getItem(key);
       },
       save: (columnValue, columnId) => {
         let key = "";
