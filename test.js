@@ -373,20 +373,18 @@ window.Event = new Vue();
 
 Vue.component('test', {
   props: ['id'],
-  template: `<div><ul class="todo-list">
+  template: `<ul class="todo-list">
     <li @dragover.prevent @drop="dragFinish(-1, $event)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
     
     <li v-else>
       <input placeholder="Type new task and press enter" type="text" class="new-todo todo-item" v-model="newItem" @keyup.enter="addItem">
     </li>
     
-    <li class="todo-item" v-for="(item, i) in todos" v-key="i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish(i, $event)">
-      <input type="checkbox" v-model="item.done" />
-      <span :class="{done: item.done}">{{ item.title }}</span>
-      <span class="remove-item" @click="removeItem(item)">x</span>
+    <li class="todo-item" v-if="todos.length != 0" v-for="(item, i) in todos" :id="id + '_' + i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish($event, i, 1)">
+      <span>{{ item.title }}</span>
+      <span class="remove-item" @click="removeItem(item, 1)">x</span>
     </li>
   </ul>
-</div>
 `,
   data: function() {
     return {
@@ -403,8 +401,7 @@ Vue.component('test', {
         return;
       }
       this.todos.push({
-        title: this.newItem,
-        done: false
+        title: this.newItem
       });
       this.newItem = "";
     },
@@ -437,11 +434,36 @@ Vue.component('test', {
     dragEnd(ev) {
       this.dragging = -1
     },
-    dragFinish(to, ev) {
-      this.moveItem(this.dragging, to);
+    dragFinish(ev, to) {
+      console.log('drag finsh');
+      console.log(to);
+      target_id = ev.currentTarget.id;
+      let data = ev.dataTransfer.getData('Text');
+      console.log(target_id);
+      console.log(data);
+      let res1 = target_id.charAt(6);
+      let res2 = data.charAt(6);
+      console.log(res1);
+      console.log(res2);
+      if (res1 != res2) {
+        //ret = this.checkCount(where);
+        //if (ret) {
+          //return;
+        //}
+        if (to != -1) {
+          this.$parent.dragFinishColumn(ev, to);
+          this.moveItem(this.todos.length - 1, to);
+        } else {
+          this.moveItem(this.dragging, to);
+        }
+      } else {
+        this.moveItem(this.dragging, to);
+      }
       ev.target.style.marginTop = '2px'
       ev.target.style.marginBottom = '2px'
-      Event.$emit("test-ev", {"todos": this.todos, "aaa":"test"});
+      Event.$emit("test-ev", {"todos": this.todos,
+                              "aaa": "test"});
+      ev.stopPropagation();
     },
     moveItem(from, to) {
       if (to === -1) {
@@ -466,11 +488,29 @@ Vue.component('test', {
     }
   },
   created() {
-    Event.$on('test-ev', event => {
-      console.log('test event');
-      console.log(event.todos);
-      console.log(event.aaa);
-    });
+    // Event.$on('test-ev', event => {
+    //   console.log('test event');
+    //   console.log(event.todos);
+    //   console.log(event.aaa);
+    // });
+
+    // Event.$on('column-drag-ev', event => {
+    //   console.log('column-drag-ev');
+    //   console.log(event.columnStartId);
+    //   console.log(event.columnEndId);
+    //   let columnStartId = event.columnStartId;
+    //   let columnEndId = event.columnEndId;
+    //   if (columnStartId === this.id) {
+    //     console.log(columnStartId + " event triggered (start)");
+    //     this.$parent.removed = this.todos.splice(this.dragging, 1);
+    //     console.log(this.$parent.removed);
+    //   }
+    //   if (columnEndId === this.id) {
+    //     console.log(columnEndId + " event triggered (end)");
+    //     this.todos.push(this.$parent.removed[0]);
+    //     this.$parent.removed = "";
+    //   }
+    // });
   },
   mounted() {
     let TODO_STORAGE_KEY = "todo" + this.componentId;
@@ -480,9 +520,150 @@ Vue.component('test', {
       save: todos => localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos))
     };
     this.todos = this.todoStorage.fetch();
+
+    Event.$on('test-ev', event => {
+      console.log('test event');
+      console.log(event.todos);
+      console.log(event.aaa);
+    });
+
+    Event.$on('column-drag-ev', event => {
+      console.log('column-drag-ev: ' + this.id);
+      console.log(event.columnStartId);
+      console.log(event.columnEndId);
+      let columnStartId = event.columnStartId;
+      let columnEndId = event.columnEndId;
+      columnEndId = columnEndId.slice(0, 7);
+      console.log(columnEndId);
+      if (this.id != columnStartId) {
+        console.log('skipping...');
+        return;
+      }
+      if (columnStartId === this.id) {
+        //if (! this.$parent.removed) {
+          console.log(columnStartId + " event triggered (start)");
+          this.$parent.removedItem = this.todos.splice(this.dragging, 1);
+          console.log(this.$parent.removedItem);
+          //this.$parent.removed = true;
+          ev_data = {
+            "columnEndId": columnEndId
+          };
+          Event.$emit('column-add', ev_data);
+        //}
+      }
+      //if (columnEndId === this.id) {
+        //if (columnStartId === "column" + where) {
+          //if (this.$parent.removed) {
+            //console.log(columnEndId + " event triggered (end)");
+            //this.todos.push(this.$parent.removedItem[0]);
+            //this.$parent.removedItem = "";
+            //this.$parent.removed = false;
+          //}
+      //}
+      //}
+    });
+
+    Event.$on('column-add', event => {
+      let columnEndId = event.columnEndId;
+      if (columnEndId === this.id) {
+        console.log("column-add triggered");
+        console.log(event);
+        this.todos.push(this.$parent.removedItem[0]);
+        this.$parent.removedItem = "";
+        //this.$parent.removed = false;
+      }
+    });
   }
 })
 
 const app = new Vue({
-  el: "#app"
+  el: "#app",
+  data: function() {
+    return {
+      startId: "",
+      removedItem: "",
+      removed: false
+    }
+  },
+  methods: {
+    dragStart2(ev) {
+      console.log('drag started2');
+      //ev.preventDefault();
+      //ev.dataTransfer.setData('Text', this.id);
+      console.log(this.id);
+      console.log(ev.target.id);
+      this.startId = ev.currentTarget.id;
+      ev.dataTransfer.setData('Text', ev.target.id);
+      ev.dataTransfer.dropEffect = 'move'
+    },
+    dragFinishColumn(ev, to) {
+      console.log('drag finish column');
+      console.log(to);
+      console.log(ev.currentTarget.id);
+      ev.preventDefault();
+      if (this.startId != ev.currentTarget.id) {
+        console.log('different column');
+        ev_data = {
+          "columnStartId": this.startId,
+          "columnEndId": ev.currentTarget.id
+        };
+        Event.$emit("column-drag-ev", ev_data);
+      } else {
+        console.log(this.$children);
+        let index = this.startId.slice(6, 7);
+        console.log(index);
+        console.log(ev);
+        this.$children[index - 1].moveItem(this.$children[index - 1].dragging, this.$children[index - 1].todos.length - 1);
+      }
+      ev.target.style.marginTop = '2px'
+      ev.target.style.marginBottom = '2px'
+      ev.stopPropagation();
+    }
+      //ret = this.checkCount(where);
+      //console.log(ret);
+      //if (ret) {
+      //  return;
+      //}
+      /*if (this.startId != ev.currentTarget.id) {
+        console.log('different column');
+        let removed;
+        if (where === 1) {
+          if (this.startId === 'column2') {
+            removed = this.todos2.splice(this.dragging, 1);
+            console.log(removed[0]);
+          }
+          if (this.startId === 'column3') {
+            removed = this.todos3.splice(this.dragging, 1);
+          }
+          this.todos.push(removed[0]);
+        } else if (where === 2) {
+          if (this.startId === 'column1') {
+            removed = this.todos.splice(this.dragging, 1);
+          }
+          if (this.startId === 'column3') {
+            removed = this.todos3.splice(this.dragging, 1);
+          }
+          this.todos2.push(removed[0]);
+        } else if (where === 3) {
+          if (this.startId === 'column1') {
+            removed = this.todos.splice(this.dragging, 1);
+          }
+          if (this.startId === 'column2') {
+            removed = this.todos2.splice(this.dragging, 1);
+          }
+          this.todos3.push(removed[0]);
+        }
+      }
+      console.log(ev.target.id);
+      console.log(this.id);
+      console.log(ev.currentTarget.id);
+      console.log(ev.dataTransfer.getData('Text'));
+      let data = ev.dataTransfer.getData('Text');
+      console.log(data);
+      ev.target.style.marginTop = '2px'
+      ev.target.style.marginBottom = '2px'
+      */
+      //ev.stopPropagation();
+    //}
+  }
 });

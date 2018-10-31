@@ -88,19 +88,15 @@
     <th>Test2</th>
     <th>Test3</th>
     <tr>
-      <td>
-        <div>
-          <test id="1"><test>
-        </div>
+      <td id="column1" @dragstart="dragStart2($event)" @dragover.prevent @drop="dragFinishColumn($event, 1, 1)">
+          <test id="column1"><test>
       </td>
-     <td>
-       <div>
-          <test id="2"><test>
-        </div>
+      <td id="column2" @dragstart="dragStart2($event)" @dragover.prevent @drop="dragFinishColumn($event, 1, 2)">
+          <test id="column2"><test>
        </td>
-     <td>
+       <td id="column3" @dragstart="dragStart2($event)" @dragover.prevent @drop="dragFinishColumn($event, 1, 3)">
        <div>
-          <test id="3"><test>
+          <test id="column3"><test>
         </div>
        </td>
     </tr>
