@@ -374,7 +374,7 @@ window.Event = new Vue();
 Vue.component('test', {
   props: ['id'],
   template: `<ul class="todo-list">
-    <li @dragover.prevent @drop="dragFinish(-1, $event)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
+    <li @dragover.prevent @drop="dragFinish($event, -1)" v-if="dragging > -1" class="trash-drop todo-item" v-bind:class="{drag: isDragging}">Delete</li>
     
     <li v-else>
       <input placeholder="Type new task and press enter" type="text" class="new-todo todo-item" v-model="newItem" @keyup.enter="addItem">
@@ -446,10 +446,12 @@ Vue.component('test', {
       console.log(res1);
       console.log(res2);
       if (res1 != res2) {
-        //ret = this.checkCount(where);
-        //if (ret) {
-          //return;
-        //}
+        where = this.id.slice(6, 7);
+        console.log(where);
+        ret = this.$parent.checkCount(where);
+        if (ret) {
+          return;
+        }
         if (to != -1) {
           this.$parent.dragFinishColumn(ev, to);
           this.moveItem(this.todos.length - 1, to);
@@ -582,7 +584,13 @@ const app = new Vue({
     return {
       startId: "",
       removedItem: "",
-      removed: false
+      column1Count: "",
+      column2Count: "",
+      column3Count: "",
+      clicked: false,
+      clicked2: false,
+      clicked3: false,
+      col: ""
     }
   },
   methods: {
@@ -601,6 +609,12 @@ const app = new Vue({
       console.log(to);
       console.log(ev.currentTarget.id);
       ev.preventDefault();
+      let where = ev.currentTarget.id.slice(6, 7);
+      ret = this.checkCount(where);
+      console.log(ret);
+      if (ret) {
+        return;
+      }
       if (this.startId != ev.currentTarget.id) {
         console.log('different column');
         ev_data = {
@@ -618,6 +632,53 @@ const app = new Vue({
       ev.target.style.marginTop = '2px'
       ev.target.style.marginBottom = '2px'
       ev.stopPropagation();
+    },
+    addCount(id) {
+      if (!this.col) {
+        return;
+      }
+      if (id === 1) {
+        if (this.col >= this.$children[id - 1].todos.length) {
+          this.column1Count = this.col;
+          this.clicked = false;
+        }
+      }
+      if (id === 2) {
+        if (this.col >= this.$children[id - 1].todos.length) {
+          this.column2Count = this.col;
+          this.clicked2 = false;
+        }
+      }
+      if (id === 3) {
+        if (this.col >= this.$children[id - 1].todos.length) {
+          this.column3Count = this.col;
+          this.clicked3 = false;
+        }
+      }
+      this.col = "";
+    },
+    checkCount(id) {
+      if (this.column1Count != "") {
+        if (id == 1) {
+          if (this.column1Count <= this.$children[id - 1].todos.length) {
+            return true;
+          }
+        }
+      }
+      if (this.column2Count != "") {
+        if (id == 2) {
+          if (this.column2Count <= this.$children[id - 1].todos.length) {
+            return true;
+          }
+        }
+      }
+      if (this.column3Count != "") {
+        if (id == 3) {
+          if (this.column3Count <= this.$children[id - 1].todos.length) {
+            return true;
+          }
+        }
+      }
     }
       //ret = this.checkCount(where);
       //console.log(ret);
