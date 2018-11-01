@@ -6,7 +6,7 @@
       <input placeholder="Type new task and press enter" type="text" class="new-todo todo-item" v-model="newItem" @keyup.enter="addItem">
     </li>
 
-    <li class="todo-item" v-if="todos.length != 0" v-for="(item, i) in todos" :id="id + '_' + i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish($event, i, 1)">
+    <li class="todo-item" v-if="todos.length != 0" v-for="(item, i) in todos" :key="i" :id="id + '_' + i" draggable="true" @dragstart="dragStart(i, $event)" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @dragend="dragEnd" @drop="dragFinish($event, i, 1)">
       <span>{{ item.title }}</span>
       <span class="remove-item" @click="removeItem(item, 1)">x</span>
     </li>

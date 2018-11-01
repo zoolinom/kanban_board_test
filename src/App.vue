@@ -1,12 +1,12 @@
 <template>
   <div id='app'>
     <table>
-      <th v-if="column1Count == ''" @click="clicked = true">To Do <input class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked === true" type="text" v-model="col" @mouseout="clicked = false" @keyup.enter="addCount(1)"></th>
-      <th v-else @click="clicked = true">To Do ( {{ column1Count }} ) <input class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked === true" type="text" v-model="col" @mouseout="clicked = false" @keyup.enter="addCount(1)"></th>
-      <th v-if="column2Count == ''" @click="clicked2 = true">In Progress <input class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked2 === true" type="text" v-model="col" @mouseout="clicked2 = false" @keyup.enter="addCount(2)"></th>
-      <th v-else @click="clicked2 = true">In Progress ( {{ column2Count }} ) <input class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked2 === true" type="text" v-model="col" @mouseout="clicked2 = false" @keyup.enter="addCount(2)"></th>
-      <th v-if="column3Count == ''" @click="clicked3 = true">Done <input class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked3 === true" type="text" v-model="col" @mouseout="clicked3 = false" @keyup.enter="addCount(3)"></th>
-      <th v-else @click="clicked3 = true">Done ( {{ column3Count }} ) <input class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked3 === true" type="text" v-model="col" @mouseout="clicked3 = false" @keyup.enter="addCount(3)"></th>
+      <th v-if="column1Count == ''" @click="focusElement(1)">To Do <input ref="input1" class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-show="clicked === true" type="text" v-model="col" @mouseout="clicked = false" @keyup.enter="addCount(1)"></th>
+      <th v-else @click="focusElement(1)">To Do ( {{ column1Count }} ) <input ref="input1" class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked === true" type="text" v-model="col" @mouseout="clicked = false" @keyup.enter="addCount(1)"></th>
+      <th v-if="column2Count == ''" @click="focusElement(2)">In Progress <input ref="input2" class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked2 === true" type="text" v-model="col" @mouseout="clicked2 = false" @keyup.enter="addCount(2)"></th>
+      <th v-else @click="focusElement(2)">In Progress ( {{ column2Count }} ) <input ref="input2" class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked2 === true" type="text" v-model="col" @mouseout="clicked2 = false" @keyup.enter="addCount(2)"></th>
+      <th v-if="column3Count == ''" @click="focusElement(3)">Done <input ref="input3" class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked3 === true" type="text" v-model="col" @mouseout="clicked3 = false" @keyup.enter="addCount(3)"></th>
+      <th v-else @click="focusElement(3)">Done ( {{ column3Count }} ) <input ref="input3" class="column-input" placeholder="Type max column value and press enter (0 to cancel value)" v-if="clicked3 === true" type="text" v-model="col" @mouseout="clicked3 = false" @keyup.enter="addCount(3)"></th>
       <tr>
         <td id="column1" @dragstart="dragStart2($event)" @dragover.prevent @drop="dragFinishColumn($event)">
             <column id="column1"></column>
@@ -133,6 +133,20 @@ export default {
         }
       }
       return false;
+    },
+    focusElement(id) {
+      if (id === 1) {
+        this.clicked = true;
+        this.$nextTick(() => this.$refs.input1.focus());
+      }
+      if (id === 2) {
+        this.clicked2 = true;
+        this.$nextTick(() => this.$refs.input2.focus());
+      }
+      if (id === 3) {
+        this.clicked3 = true;
+        this.$nextTick(() => this.$refs.input3.focus());
+      }
     }
   },
   mounted() {
