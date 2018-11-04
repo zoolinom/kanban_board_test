@@ -61,6 +61,7 @@ export default {
     dragStart(which, ev) {
       ev.dataTransfer.setData('Text', this.id);
       ev.dataTransfer.dropEffect = 'move'
+      // index of element taht we are dragging
       this.dragging = which;
     },
     dragEnter(ev) {
@@ -91,7 +92,9 @@ export default {
 
       let res2 = data.charAt(6);
 
+      // if we are dragging to different column
       if (res1 != res2) {
+        // if we drag to delete
         if (to === -1) {
           this.moveItem(this.dragging, to);
         } else {
@@ -99,13 +102,12 @@ export default {
 
           let ret = this.$parent.checkCount(where);
 
+          // check if we can drag to column because of column's max number
           if (ret) {
             return;
           }
-          if (to != -1) {
-            this.$parent.dragFinishColumn(ev);
-            this.moveItem(this.todos.length - 1, to);
-          }
+          this.$parent.dragFinishColumn(ev);
+          this.moveItem(this.todos.length - 1, to);
         }
       } else {
         console.log('bbb');
@@ -113,6 +115,7 @@ export default {
       }
       ev.target.style.marginTop = '2px'
       ev.target.style.marginBottom = '2px'
+      // stop propagation to parent/child element
       ev.stopPropagation();
     },
     moveItem(from, to) {

@@ -46,6 +46,7 @@ export default {
   methods: {
     dragStart2(ev) {
       console.log('drag started2');
+      // store id of column where drag is started
       this.startId = ev.currentTarget.id;
       ev.dataTransfer.setData('Text', ev.target.id);
       ev.dataTransfer.dropEffect = 'move'
@@ -55,17 +56,20 @@ export default {
       ev.preventDefault();
       let where = ev.currentTarget.id.slice(6, 7);
 
+      // check if we can drag to column (if max number is smaller of array length)
       let ret = this.checkCount(where);
 
       if (ret) {
         return;
       }
+      // if we drag and drop to different column
       if (this.startId != ev.currentTarget.id) {
         console.log('different column');
         Event.$emit("column-drag-ev", {
           "columnStartId": this.startId,
           "columnEndId": ev.currentTarget.id
         });
+      // else only arrange itmes if needed
       } else {
         let index = this.startId.slice(6, 7);
 
